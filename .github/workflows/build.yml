@@ -167,8 +167,15 @@ jobs:
     runs-on: ubuntu-latest
     name: Create GitHub Release
     needs: [build-windows, build-linux]
+    permissions:
+      contents: write
 
     steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
       - name: Download Windows Artifact
         uses: actions/download-artifact@v4
         with:
@@ -181,15 +188,28 @@ jobs:
           name: linux-build
           path: ./artifacts/linux
 
+      - name: Determine Release Tag
+        id: tagger
+        run: |
+          if [[ "${{ github.ref_type }}" == "tag" ]]; then
+            echo "tag=${{ github.ref_name }}" >> "$GITHUB_OUTPUT"
+          else
+            TAG="manual-${{ github.run_number }}"
+            git tag "$TAG"
+            git push origin "$TAG"
+            echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: ${{ steps.tagger.outputs.tag }}
           files: |
             artifacts/windows/cypherdna-windows.zip
             artifacts/linux/cypherdna-linux.zip
-          name: "CypherDNA ${{ github.ref_name }}"
+          name: "CypherDNA ${{ steps.tagger.outputs.tag }}"
           body: |
-            ## CypherDNA ${{ github.ref_name }}
+            ## CypherDNA ${{ steps.tagger.outputs.tag }}
 
             Advanced Password DNA Sequencing & Intelligent Wordlist Generator.
 
