@@ -1,0 +1,6 @@
+xbox
+playstation
+nintendo
+pc
+switch
+steam

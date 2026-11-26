@@ -1,0 +1,34 @@
+{
+    "breach_patterns": [
+        {
+            "pattern": "NAME+YEAR",
+            "count": 45000000,
+            "description": "Found in Adobe & LinkedIn leaks. Extremely common.",
+            "risk": "CRITICAL"
+        },
+        {
+            "pattern": "NAME+NUMBER",
+            "count": 32000000,
+            "description": "Typical pattern for users forced to add numbers.",
+            "risk": "HIGH"
+        },
+        {
+            "pattern": "NAME+SYMBOL+YEAR",
+            "count": 5000000,
+            "description": "Common bypass for complexity rules requiring symbols.",
+            "risk": "MEDIUM"
+        },
+        {
+            "pattern": "WORD+YEAR",
+            "count": 28000000,
+            "description": "Highly predictable dictionary-based pattern.",
+            "risk": "HIGH"
+        }
+    ],
+    "breach_source_stats": {
+        "Adobe (2013)": "153 million accounts",
+        "LinkedIn (2012/2016)": "164 million accounts",
+        "Canva (2019)": "137 million accounts",
+        "MySpace (2016)": "360 million accounts"
+    }
+}

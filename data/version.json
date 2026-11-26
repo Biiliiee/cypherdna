@@ -1,0 +1,20 @@
+{
+    "version": "3.5.1",
+    "version_title": "BR-Psychology & Trainer Reinforcement",
+    "changelog_pt": [
+        "O CypherDNA analisa senhas como uma cadeia de DNA: separa cada parte em tokens (nome, ano, número, símbolo...) e classifica o padrão estrutural.",
+        "Usando estatística treinada em vazamentos reais, ele calcula a probabilidade real de cada padrão e gera wordlists direcionadas ordenadas por essa probabilidade.",
+        "Comandos principais: 'analyze' investiga uma senha específica, 'generator' monta wordlists a partir de dados do alvo, 'collect' treina o modelo com sua própria base de dados.",
+        "Ferramenta feita para pentest autorizado e auditoria da própria segurança. Uso contra terceiros sem autorização é ilegal.",
+        "Rode 'cypherdna --help' a qualquer momento para ver todos os comandos disponíveis."
+    ],
+    "changelog_en": [
+        "CypherDNA analyzes passwords like a strand of DNA: it splits each part into tokens (name, year, number, symbol...) and classifies the structural pattern.",
+        "Using statistics trained on real leak data, it calculates the real-world probability of each pattern and generates targeted wordlists ranked by that probability.",
+        "Main commands: 'analyze' investigates a specific password, 'generator' builds wordlists from target data, 'collect' trains the model on your own dataset.",
+        "Built for authorized pentesting and your own security audits. Use against third parties without authorization is illegal.",
+        "Run 'cypherdna --help' at any time to see all available commands."
+    ],
+    "dev_status_pt": "O CipherDNA encontra-se em sua fase primordial de engenharia. Como em qualquer tecnologia em estágio inicial, a ferramenta está sujeita a instabilidades técnicas e comportamentos não previstos.\n\nNossa equipe está dedicada ao refinamento contínuo de estabilidade, segurança e eficiência operacional. Acreditamos que a colaboração técnica é o motor da excelência forense.",
+    "contact_email": "hostpentest@gmail.com"
+}

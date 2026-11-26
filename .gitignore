@@ -1,0 +1,46 @@
+# ── Python ────────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg
+*.egg-info/
+.eggs/
+.pytest_cache/
+
+# ── Build / Packaging ─────────────────────────────────────────────────────────
+build/
+dist/
+develop-eggs/
+downloads/
+lib/
+lib64/
+sdist/
+wheels/
+*.spec             # PyInstaller spec files
+
+# ── CypherDNA Runtime / Output ────────────────────────────────────────────────
+output/*
+!output/**/.gitkeep
+You_wordlist/
+you_wordlist/
+reports/
+benchmark_reports/
+
+# Arquivos temporários e de estado interno
+.cph_lang
+.cph_hibp
+.cph_meta
+.cph_time.dat
+.cph_audit.log
+.cph_last_v
+license.config
+*.log
+
+# ── OS ────────────────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+
+# ── IDEs ──────────────────────────────────────────────────────────────────────
+.vscode/
+.idea/
