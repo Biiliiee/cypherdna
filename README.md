@@ -63,10 +63,10 @@ cypherdna --help
 
 ```bash
 # Analisa a estrutura de DNA e a entropia de uma senha
-cypherdna analyze "xbox360.kabuto"
+cypherdna analyze "xbx.124@"
 
 # Gera uma wordlist direcionada (leet speak + símbolos, máximo 50 mil senhas)
-cypherdna generator xbox kabuto 2024 -L -S -N 50000 -o alvo.txt
+cypherdna generator Algo 123 2024 -L -S -N 50000 -o alvo.txt
 
 # Envia a saída direto pro Hashcat (sem gravar em disco)
 cypherdna generator admin 2024 --pipe | hashcat -m 1000 hashes.txt
