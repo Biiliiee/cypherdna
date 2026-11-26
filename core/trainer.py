@@ -172,11 +172,13 @@ def collect(ctx, input_src, list_files, print_file, delete_file):
             return
 
         confirm_q = (
-            f"Tem certeza que deseja apagar o dataset '{clean_file}' permanentemente?"
+            f"Tem certeza que deseja apagar o dataset '[bold cyan]{clean_file}[/bold cyan]' permanentemente?"
             if is_pt else
-            f"Are you sure you want to permanently delete dataset '{clean_file}'?"
+            f"Are you sure you want to permanently delete dataset '[bold cyan]{clean_file}[/bold cyan]'?"
         )
-        if not click.confirm(f"\n[bold yellow][?][/bold yellow] {confirm_q}", default=False):
+        yn_hint = "[dim]\\[s/N]:[/dim]" if is_pt else "[dim]\\[y/N]:[/dim]"
+        ans = console.input(f"\n[bold yellow]\\[?][/bold yellow] [white]{confirm_q}[/white] {yn_hint} ").strip().lower()
+        if ans not in ("y", "yes", "s", "sim"):
             cancel_msg = (
                 f"[yellow]Operação cancelada.[/yellow] O dataset [bold]{clean_file}[/bold] não foi apagado.\n"
                 if is_pt else

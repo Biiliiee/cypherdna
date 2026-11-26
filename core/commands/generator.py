@@ -114,37 +114,74 @@ def generator(ctx, inputs, number, output, symbol, trainer, leet, validate, pipe
         title = get_text("generator", "title", lang)
         console.print(f"\n[bold white on red] {title} [/bold white on red]\n")
 
-        # 1. Identificar tipos disponíveis estritamente conforme inputs e flags ativas
-        available_types = set()
-        if symbol:
-            available_types.add("SYMBOL")
-            available_types.add("SEPARATOR")
-
+        # 1. Identificar tokens disponíveis com multiplicidade exata conforme Gen.py
+        from collections import Counter
+        standard_panel_types = {
+            "NAME", "WORD", "YEAR", "NUMBER", "MONTH", "SYMBOL",
+            "SEPARATOR", "DATE", "SEASON", "WEAK_WORD", "REPEATED", "KEY_WALK"
+        }
+        token_counts = Counter()
+        seen_tok_keys = set()
         for res in parsed_results:
             for tok in res.tokens:
                 tt = tok.token_type
-                if tt in ["DATE", "YEAR", "MONTH"]:
-                    available_types.add(tt)
-                elif tt in ["NUMBER", "KEY_WALK"]:
-                    available_types.add("NUMBER")
-                else:
-                    available_types.add(tt)
-                    available_types.add("WORD")
-                    available_types.add("NAME")
+                val_norm = tok.value.strip()
+                tkey = (tt, val_norm)
+                if tkey in seen_tok_keys:
+                    continue
+                seen_tok_keys.add(tkey)
+                token_counts[tt] += 1
+                if tt == "KEY_WALK" and val_norm.isdigit():
+                    token_counts["NUMBER"] += 1
+                elif tt not in standard_panel_types:
+                    is_known_custom = (
+                        model.get_token_probability(tt) > 0
+                        and any(tt in p.split("+") for p in model.pattern_probabilities)
+                    )
+                    if not is_known_custom:
+                        token_counts["WORD"] += 1
 
-        # 2. Buscar padrões prioritários
+        total_non_delim = sum(cnt for k, cnt in token_counts.items() if k not in ("SYMBOL", "SEPARATOR"))
+
+        def _can_panel_generate(pat_str):
+            parts = [p for p in pat_str.split("+") if p]
+            non_delims = [p for p in parts if p not in ("SYMBOL", "SEPARATOR")]
+            if not non_delims or len(non_delims) > 4:
+                return False
+            # Gen.py rejeita >1 YEAR/DATE e separador sem 2+ tokens
+            if sum(1 for p in non_delims if p in ("YEAR", "DATE")) > 1:
+                return False
+            sep_need = parts.count("SEPARATOR")
+            sym_need = parts.count("SYMBOL")
+            if sep_need > 0 and (not symbol and token_counts["SEPARATOR"] == 0 or len(non_delims) < 2):
+                return False
+            if sep_need > max(0, len(non_delims) - 1) and token_counts["SEPARATOR"] < sep_need:
+                return False
+            if sym_need > 0 and (not symbol and token_counts["SYMBOL"] < sym_need):
+                return False
+            if sym_need > 1 + token_counts["SYMBOL"]:
+                return False
+            # Se padrão termina com SEPARATOR isolado ou começa com SEPARATOR não gerado no Phase 2
+            if parts[0] == "SEPARATOR" or parts[-1] == "SEPARATOR":
+                return False
+            need = Counter(non_delims)
+            return all(token_counts[t] >= cnt for t, cnt in need.items())
+
+        # 2. Buscar padrões prioritários (Fase 1: Ranker -> Fase 2: Modelo de IA treinado)
         top_strat = []
+        seen_strat_pats = set()
         if rank and active_rank_data:
             for pat in active_rank_data:
                 prob = model.get_pattern_probability(pat)
-                top_strat.append((pat, prob))
-        else:
-            for pat, prob in sorted(model.pattern_probabilities.items(), key=lambda x: x[1], reverse=True):
-                pat_parts = set(pat.split("+"))
-                if pat_parts.issubset(available_types):
-                    top_strat.append((pat, prob))
-                    if len(top_strat) >= 5:
-                        break
+                top_strat.append((pat, prob, "RANKER"))
+                seen_strat_pats.add(pat.upper())
+
+        for pat, prob in sorted(model.pattern_probabilities.items(), key=lambda x: x[1], reverse=True):
+            if pat.upper() not in seen_strat_pats and _can_panel_generate(pat):
+                top_strat.append((pat, prob, "AI"))
+                seen_strat_pats.add(pat.upper())
+                if len([x for x in top_strat if x[2] == "AI"]) >= 5:
+                    break
 
         # 3. Painel de Estratégia
         strat_table = Table(box=None, header_style="bold magenta")
@@ -152,9 +189,13 @@ def generator(ctx, inputs, number, output, symbol, trainer, leet, validate, pipe
         strat_table.add_column(get_text("generator", "col_prob", lang), justify="right")
 
         if top_strat:
-            for pat, prob in top_strat:
-                p_text = "CUSTOM" if rank else (f"{prob:.2%}" if prob > 0 else "CUSTOM")
-                strat_table.add_row(format_pattern(pat), f"[bold white]{p_text}[/bold white]")
+            for pat, prob, source in top_strat:
+                if source == "RANKER":
+                    p_text = "[bold yellow]RANKER (1º)[/bold yellow]" if is_pt else "[bold yellow]RANKER (1st)[/bold yellow]"
+                else:
+                    ai_tag = "IA" if is_pt else "AI"
+                    p_text = f"[bold cyan]{ai_tag}[/bold cyan] [bold white]{prob:.2%}[/bold white]" if rank else f"[bold white]{prob:.2%}[/bold white]"
+                strat_table.add_row(format_pattern(pat), p_text)
         else:
             msg_fallback = get_text("generator", "msg_fallback", lang)
             strat_table.add_row(f"[dim]{msg_fallback}[/dim]", "0.00%")
@@ -179,6 +220,22 @@ def generator(ctx, inputs, number, output, symbol, trainer, leet, validate, pipe
         config_text.append(str(number or "10,000"), style="bold white")
 
         console.print(Panel(config_text, title=get_text("generator", "config_panel_title", lang), border_style="bright_red"))
+
+        if rank and not active_rank_data:
+            warn_empty_rank = (
+                "[yellow][!][/yellow] Flag [bold]-R[/bold] ativa, mas nenhuma estratégia do Ranker está carregada. Use [bold]cypherdna ranker -C[/bold] ou [bold]-P corporate[/bold]."
+                if is_pt else
+                "[yellow][!][/yellow] Flag [bold]-R[/bold] is enabled, but no Ranker strategy is active. Use [bold]cypherdna ranker -C[/bold] or [bold]-P corporate[/bold]."
+            )
+            console.print(warn_empty_rank)
+        elif rank and active_rank_data and not symbol and any("SYMBOL" in pat.upper() or "SEPARATOR" in pat.upper() for pat in active_rank_data):
+            warn_sym_rank = (
+                "[yellow][!][/yellow] Sua estratégia do Ranker usa [bold]SYMBOL/SEPARATOR[/bold], mas [bold]-S[/bold] está desabilitado. Adicione [bold]-S[/bold] para injetar símbolos."
+                if is_pt else
+                "[yellow][!][/yellow] Your active Ranker strategy uses [bold]SYMBOL/SEPARATOR[/bold], but [bold]-S[/bold] is disabled. Add [bold]-S[/bold] to inject symbols."
+            )
+            console.print(warn_sym_rank)
+
         console.print(get_text("generator", "msg_generating", lang))
 
     try:

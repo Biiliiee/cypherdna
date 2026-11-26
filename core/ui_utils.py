@@ -122,39 +122,41 @@ SUBCOMMAND_HELP = {
         "title_en": " CIPHERDNA - STRATEGIC RANKER ",
         "title_pt": " CIPHERDNA - RANKER ESTRATÉGICO ",
         "usage": "cypherdna ranker [OPTIONS]",
-        "desc_en": "Configures structural DNA priority rankings (e.g., NAME+YEAR+SYMBOL) used by generator -R.",
-        "desc_pt": "Configura os rankings de prioridade estrutural de DNA (ex: NAME+YEAR+SYMBOL) usados pelo generator -R.",
+        "desc_en": "Manages DNA priority strategies (.dna files and active ranking) applied when running generator -R.",
+        "desc_pt": "Gerencia estratégias de prioridade DNA (arquivos .dna e ranking ativo) aplicadas ao rodar generator -R.",
         "examples_en": [
-            ("cypherdna ranker -L", "Lists active strategic ranking priority order"),
-            ("cypherdna ranker -C", "Interactive builder to create your custom DNA strategy"),
-            ("cypherdna ranker -P corporate", "Applies built-in preset template ('corporate', 'minimalist', 'hardcore')"),
-            ("cypherdna ranker -E my_strat.dna", "Exports current strategy to a .dna file"),
-            ("cypherdna ranker -I my_strat.dna", "Imports and activates strategy from a .dna file"),
-            ("cypherdna ranker -D", "Clears all custom rankings")
+            ("cypherdna ranker", "Opens interactive control panel and shows active ranking"),
+            ("cypherdna ranker -L", "Lists active ranking, presets, and saved .dna strategies"),
+            ("cypherdna ranker -C", "Builds a custom strategy, saves .dna on DONE, and activates it"),
+            ("cypherdna ranker -P corporate", "Applies built-in preset (corporate | minimalist | hardcore)"),
+            ("cypherdna ranker -I Naruto", "Loads and activates saved strategy Naruto.dna"),
+            ("cypherdna ranker -E my_strat", "Exports active strategy to strategies/my_strat.dna"),
+            ("cypherdna ranker -D Naruto", "Deletes custom strategy Naruto.dna (use -D all for all, or -D for menu)")
         ],
         "examples_pt": [
-            ("cypherdna ranker -L", "Lista a ordem de prioridade ativa do ranking estratégico"),
-            ("cypherdna ranker -C", "Criador interativo para montar sua estratégia de DNA"),
-            ("cypherdna ranker -P corporate", "Aplica modelo pronto ('corporate', 'minimalist', 'hardcore')"),
-            ("cypherdna ranker -E my_strat.dna", "Exporta a estratégia atual para um arquivo .dna"),
-            ("cypherdna ranker -I my_strat.dna", "Importa e ativa uma estratégia de um arquivo .dna"),
-            ("cypherdna ranker -D", "Limpa todos os rankings customizados")
+            ("cypherdna ranker", "Abre painel interativo e exibe o ranking ativo"),
+            ("cypherdna ranker -L", "Lista ranking ativo, presets e estratégias .dna salvas"),
+            ("cypherdna ranker -C", "Cria estratégia customizada, salva .dna no DONE e ativa"),
+            ("cypherdna ranker -P corporate", "Aplica preset pronto (corporate | minimalist | hardcore)"),
+            ("cypherdna ranker -I Naruto", "Carrega e ativa a estratégia salva Naruto.dna"),
+            ("cypherdna ranker -E minha_strat", "Exporta a estratégia ativa para strategies/minha_strat.dna"),
+            ("cypherdna ranker -D Naruto", "Apaga a estratégia Naruto.dna (use -D all para tudo, ou -D para menu)")
         ],
         "options_en": [
-            ("-L, --list", "List active strategic ranking priority rules"),
-            ("-C, --custom", "Interactive step-by-step DNA strategy builder"),
-            ("-P, --preset <name>", "Apply built-in preset (corporate, minimalist, hardcore)"),
-            ("-E, --export <file>", "Export strategy to a .dna file in strategies/"),
-            ("-I, --import <file>", "Import and activate strategy from a .dna file"),
-            ("-D, --clear", "Clear all custom strategic rankings")
+            ("-L, --list", "List active ranking, presets, and saved .dna strategies"),
+            ("-C, --create, --custom", "Interactive builder (saves .dna file on DONE and activates)"),
+            ("-P, --preset [name]", "Apply built-in preset (corporate, minimalist, hardcore)"),
+            ("-I, --use, --import [name]", "Load and activate a saved .dna strategy"),
+            ("-E, --export <file>", "Export active ranking to a .dna file in strategies/"),
+            ("-D, --delete, --clear [target]", "Delete custom .dna strategy, 'active', or 'all'")
         ],
         "options_pt": [
-            ("-L, --list", "Lista as regras ativas do ranking de prioridades"),
-            ("-C, --custom", "Criador interativo passo a passo de estratégia DNA"),
-            ("-P, --preset <nome>", "Aplica modelo pronto (corporate, minimalist, hardcore)"),
-            ("-E, --export <file>", "Exporta estratégia para um arquivo .dna em strategies/"),
-            ("-I, --import <file>", "Importa e ativa estratégia de um arquivo .dna"),
-            ("-D, --clear", "Limpa todos os rankings estratégicos customizados")
+            ("-L, --list", "Lista ranking ativo, presets e estratégias .dna salvas"),
+            ("-C, --create, --custom", "Construtor interativo (salva arquivo .dna no DONE e ativa)"),
+            ("-P, --preset [nome]", "Aplica modelo pronto (corporate, minimalist, hardcore)"),
+            ("-I, --use, --import [nome]", "Carrega e ativa uma estratégia .dna salva"),
+            ("-E, --export <arquivo>", "Exporta o ranking ativo para um arquivo .dna em strategies/"),
+            ("-D, --delete, --clear [alvo]", "Apaga estratégia .dna customizada, 'active' ou 'all'")
         ]
     },
     "collect": {
@@ -388,7 +390,7 @@ def display_custom_help(is_pt=False):
             "CUSTOMIZATION & STRATEGY" if not is_pt else "CUSTOMIZAÇÃO & ESTRATÉGIAS",
             [
                 ("cmd_token",   "token <NAME> [-n | -a <file> | -r]"),
-                ("cmd_ranker",  "ranker [-L | -C | -P <name>]"),
+                ("cmd_ranker",  "ranker [-L | -C | -P | -I | -D]"),
             ]
         ),
         (

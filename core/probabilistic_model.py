@@ -274,6 +274,14 @@ class ProbabilisticModel:
         """
         return self.transition_probabilities.get(f"{token_a.upper()}->{token_b.upper()}", 0.0)
 
+    def has_trained_data(self) -> bool:
+        """Indica se há estatísticas reais carregadas de datasets do Trainer."""
+        return bool(
+            self.pattern_probabilities
+            or self.token_probabilities
+            or self.transition_probabilities
+        )
+
     def print_top_tokens(self, limit: int = 5):
         """Prints the Top N most highly probable tokens observed."""
         console.print(f"\n[bold cyan]--- Top {limit} Most Probable Tokens ---[/bold cyan]")
